@@ -159,6 +159,7 @@ const AdminDashboard = () => {
   const totalRevenue   = orders.reduce((t, o) => t + o.total, 0);
   const totalCommission = orders.reduce((t, o) => t + o.commission, 0);
   const pendingCount   = orders.filter(o => o.status === 'pending').length;
+  const enRouteCount   = orders.filter(o => o.status === 'en_route').length;
   const deliveredCount = orders.filter(o => o.status === 'delivered').length;
 
   return (
@@ -228,12 +229,85 @@ const AdminDashboard = () => {
 
       {/* ── Main Content ─────────────────────────────────────────────── */}
       <main style={{ flex: 1, overflowY: 'auto', padding: '32px 40px' }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.1 }}
-        >
-          {/* Page title */}
+        {activeNav === 'analytics' ? (
+          <motion.div
+            key="analytics"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+          >
+            <div style={{ marginBottom: 28 }}>
+              <h1 style={{
+                fontSize: '2.2rem',
+                fontWeight: 800,
+                letterSpacing: '-0.02em',
+                color: 'var(--accent-orange)',
+                marginBottom: 4,
+              }}>
+                Analytics
+              </h1>
+              <p style={{ color: 'rgba(232,232,245,0.4)', fontSize: '0.9rem' }}>
+                Order status distribution
+              </p>
+            </div>
+
+            <GlassCard noHover style={{ padding: 40, borderRadius: 22, maxWidth: 600 }}>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 40, color: 'var(--text-primary)' }}>
+                Order Status
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', height: 250, paddingBottom: 10, borderBottom: '2px solid rgba(255,255,255,0.1)' }}>
+                {[
+                  { label: 'Pending', count: pendingCount, color: 'var(--accent-red)' },
+                  { label: 'En Route', count: enRouteCount, color: 'var(--accent-amber)' },
+                  { label: 'Delivered', count: deliveredCount, color: 'var(--accent-green)' },
+                ].map((item, i, arr) => {
+                  const maxCount = Math.max(...arr.map(a => a.count), 1);
+                  const heightPercentage = (item.count / maxCount) * 100;
+                  return (
+                    <div key={item.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 80, height: '100%', justifyContent: 'flex-end' }}>
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: `${heightPercentage}%` }}
+                        transition={{ duration: 0.8, delay: i * 0.1, type: 'spring' }}
+                        style={{
+                          width: '100%',
+                          background: item.color,
+                          borderRadius: '8px 8px 0 0',
+                          opacity: 0.9,
+                          position: 'relative',
+                          minHeight: heightPercentage > 0 ? 4 : 0,
+                        }}
+                      >
+                        <span style={{
+                          position: 'absolute',
+                          top: -28,
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          fontWeight: 800,
+                          fontSize: '1.1rem',
+                          color: 'var(--text-primary)',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                        }}>
+                          {item.count}
+                        </span>
+                      </motion.div>
+                      <div style={{ marginTop: 15, width: 80, textAlign: 'center', fontWeight: 600, fontSize: '0.9rem', color: 'rgba(232,232,245,0.6)' }}>
+                        {item.label}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </GlassCard>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="orders"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.1 }}
+          >
+            {/* Page title */}
           <div style={{ marginBottom: 28 }}>
             <h1 style={{
               fontSize: '2.2rem',
@@ -417,6 +491,7 @@ const AdminDashboard = () => {
             </div>
           </GlassCard>
         </motion.div>
+        )}
       </main>
     </div>
   );
